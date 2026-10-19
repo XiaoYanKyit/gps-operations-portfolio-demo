@@ -210,3 +210,5 @@ Do not use the development secret key or Django debug mode in production. Config
 
 \*Built as a software development portfolio project.\*
 
+gunicorn
+whitenoise
