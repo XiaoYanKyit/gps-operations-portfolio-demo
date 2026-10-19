@@ -1,0 +1,360 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPS Operations | Demo Login</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --ink: #1f2430;
+        --muted: #7a8296;
+        --primary: #e8462f;
+        --primary-soft: #fdece7;
+        --primary-deep: #c93a26;
+        --indigo: #223a66;
+        --bg: #f4f5fa;
+        --line: #e9eaf1;
+        --font-display: 'Zen Maru Gothic', 'Inter', sans-serif;
+        --font-body: 'Inter', sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 20px;
+    }
+
+    .enso {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        opacity: .16;
+        pointer-events: none;
+    }
+
+    .login-wrapper {
+        width: 860px;
+        max-width: 100%;
+        height: 520px;
+        max-height: calc(100vh - 40px);
+        background: #fff;
+        border-radius: 28px;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        box-shadow: 0 30px 70px -24px rgba(31, 36, 48, .28);
+    }
+
+    .brand-panel {
+        position: relative;
+        overflow: hidden;
+        padding: 42px 38px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: linear-gradient(
+            150deg,
+            #223a66 0%,
+            #2e4d84 55%,
+            #e8462f 100%
+        );
+        color: #fff;
+    }
+
+    .enso.one {
+        width: 220px;
+        height: 220px;
+        right: -70px;
+        top: -70px;
+    }
+
+    .enso.two {
+        width: 120px;
+        height: 120px;
+        left: -30px;
+        bottom: -30px;
+        opacity: .1;
+    }
+
+    .brand-mark {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .logo-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, .15);
+        border: 1px solid rgba(255, 255, 255, .35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #fff;
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 900;
+    }
+
+    .brand-mark h1 {
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .brand-mark p {
+        color: #d7deee;
+        font-size: 8px;
+        font-family: var(--font-mono);
+        letter-spacing: 1px;
+        margin-top: 4px;
+    }
+
+    .brand-tagline {
+        max-width: 250px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .brand-tagline p {
+        font-size: 12px;
+        line-height: 1.7;
+        color: #eef1f8;
+    }
+
+    .brand-tagline span {
+        display: block;
+        margin-top: 12px;
+        font-size: 8px;
+        font-family: var(--font-mono);
+        letter-spacing: 1px;
+        color: #b9c6e2;
+    }
+
+    .form-panel {
+        padding: 46px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-header {
+        margin-bottom: 22px;
+    }
+
+    .login-header h2 {
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 700;
+        font-family: var(--font-display);
+        margin-bottom: 5px;
+    }
+
+    .login-header p {
+        color: var(--muted);
+        font-size: 10px;
+    }
+
+    .error-message {
+        background: var(--primary-soft);
+        color: var(--primary-deep);
+        padding: 10px 14px;
+        font-size: 10px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    form p {
+        margin-bottom: 16px;
+    }
+
+    label {
+        display: block;
+        color: var(--ink);
+        font-size: 9px;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        margin-bottom: 7px;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        height: 42px;
+        border: 1.5px solid var(--line);
+        border-radius: 12px;
+        padding: 0 14px;
+        font-size: 11px;
+        outline: none;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-mono);
+        transition: border-color .15s ease, background .15s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+
+    ul.errorlist {
+        list-style: none;
+        color: var(--primary-deep);
+        font-size: 9px;
+        margin-top: 5px;
+        font-weight: 600;
+    }
+
+    .helptext {
+        display: none;
+    }
+
+    .login-button {
+        width: 100%;
+        height: 44px;
+        border: none;
+        border-radius: 999px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 10.5px;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        letter-spacing: 1px;
+        cursor: pointer;
+        margin-top: 2px;
+        box-shadow: 0 12px 24px -10px rgba(232, 70, 47, .5);
+        transition: background .15s ease;
+    }
+
+    .login-button:hover {
+        background: var(--primary-deep);
+    }
+
+    .login-footer {
+        margin-top: 22px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 9px;
+        line-height: 1.5;
+    }
+
+    .login-footer strong {
+        color: var(--ink);
+        font-weight: 700;
+    }
+
+    @media(max-width: 820px) {
+        body {
+            overflow: auto;
+        }
+
+        .login-wrapper {
+            height: auto;
+            max-height: none;
+            grid-template-columns: 1fr;
+            border-radius: 20px;
+        }
+
+        .brand-panel {
+            min-height: 170px;
+            padding: 28px 26px;
+        }
+
+        .brand-tagline {
+            display: none;
+        }
+
+        .form-panel {
+            padding: 32px 28px;
+        }
+    }
+</style>
+</head>
+
+<body>
+    <div class="login-wrapper">
+
+        <div class="brand-panel">
+            <span class="enso one"></span>
+            <span class="enso two"></span>
+
+            <div class="brand-mark">
+                <div class="logo-box">G</div>
+                <div>
+                    <h1>GPS Operations</h1>
+                    <p>PORTFOLIO DEMO</p>
+                </div>
+            </div>
+
+            <div class="brand-tagline">
+                <p>
+                    A demonstration of GPS reset and outlet management
+                    workflows built with Django.
+                </p>
+                <span>DEMO ENVIRONMENT · NO LIVE SYSTEM CONNECTION</span>
+            </div>
+        </div>
+
+        <div class="form-panel">
+
+            <div class="login-header">
+                <h2>Sign In</h2>
+                <p>Enter your demo account credentials.</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="error-message">
+                Invalid username or password. Please try again.
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="login-button">SIGN IN</button>
+            </form>
+
+            <div class="login-footer">
+                <strong>Demo Access Only</strong><br>
+                This application uses simulated data. No live company systems are modified.
+            </div>
+
+        </div>
+
+    </div>
+</body>
+</html>

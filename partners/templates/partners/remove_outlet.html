@@ -1,0 +1,720 @@
+{% extends "partners/base.html" %} {% block title %}Remove Outlet | GPS
+Operations Demo{% endblock %} {% block page_title %}Remove Outlet{% endblock %}
+{% block page_subtitle %} Simulated outlet removal workflow using local demo
+data {% endblock %} {% block content %}
+
+<style>
+  /* =========================================================
+       UPLOAD CARD
+    ========================================================= */
+
+  .upload-card {
+    padding: 28px;
+    margin-bottom: 18px;
+  }
+
+  .upload-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    font-family: var(--font-display);
+    margin-bottom: 5px;
+  }
+
+  .upload-description {
+    font-size: 9px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .file-box {
+    border: 2px dashed var(--line);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    text-align: center;
+    background: var(--bg);
+    margin-bottom: 18px;
+  }
+
+  .file-box input {
+    font-size: 9px;
+    font-family: var(--font-mono);
+  }
+
+  /* =========================================================
+       BUTTONS
+    ========================================================= */
+
+  .button-row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .primary-button,
+  .danger-button,
+  .secondary-button {
+    height: 38px;
+    padding: 0 22px;
+    border-radius: var(--radius-pill);
+    font-size: 9px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .primary-button {
+    border: none;
+    background: var(--primary);
+    color: white;
+  }
+
+  .primary-button:hover {
+    background: var(--primary-deep);
+    transform: translateY(-1px);
+  }
+
+  .danger-button {
+    border: none;
+    background: var(--danger);
+    color: white;
+  }
+
+  .danger-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .secondary-button {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .secondary-button:hover {
+    background: var(--bg);
+  }
+
+  /* =========================================================
+       MESSAGE BOXES
+    ========================================================= */
+
+  .success-box {
+    margin-bottom: 16px;
+    padding: 15px 18px;
+
+    background: #16a34a;
+    border: 1px solid #15803d;
+
+    border-radius: var(--radius-md);
+
+    color: #ffffff;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.18);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .error-box {
+    margin-bottom: 16px;
+    padding: 15px 18px;
+
+    background: #dc2626;
+    border: 1px solid #b91c1c;
+
+    border-radius: var(--radius-md);
+
+    color: #ffffff;
+
+    font-size: 9px;
+    font-weight: 700;
+
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.18);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* =========================================================
+       PREVIEW MODAL
+    ========================================================= */
+
+  .preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(7px);
+
+    opacity: 1;
+    visibility: visible;
+
+    animation: modalFadeIn 0.2s ease;
+  }
+
+  @keyframes modalFadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  .preview-modal-content {
+    width: min(1100px, 96vw);
+    max-height: 88vh;
+
+    background: var(--surface);
+
+    border: 1px solid var(--line);
+    border-radius: 18px;
+
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.22);
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    animation: modalSlideUp 0.25s ease;
+  }
+
+  @keyframes modalSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(18px) scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* =========================================================
+       MODAL HEADER
+    ========================================================= */
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 20px 24px;
+
+    border-bottom: 1px solid var(--line);
+  }
+
+  .preview-header-left h3 {
+    font-size: 13px;
+    color: var(--ink);
+    font-family: var(--font-display);
+    margin: 0;
+  }
+
+  .preview-header-left p {
+    margin-top: 5px;
+    font-size: 8.5px;
+    color: var(--muted);
+  }
+
+  .modal-close {
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid var(--line);
+    border-radius: 50%;
+
+    background: var(--surface);
+    color: var(--muted);
+
+    font-size: 18px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.2s ease;
+  }
+
+  .modal-close:hover {
+    background: var(--bg);
+    color: var(--ink);
+    transform: rotate(90deg);
+  }
+
+  /* =========================================================
+       MODAL BODY
+    ========================================================= */
+
+  .preview-modal-body {
+    overflow: auto;
+    padding: 0;
+    flex: 1;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9px;
+  }
+
+  .preview-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+
+    background: var(--bg);
+    color: var(--muted);
+
+    font-size: 8px;
+    font-family: var(--font-mono);
+
+    padding: 12px 16px;
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--line);
+  }
+
+  .preview-table td {
+    padding: 12px 16px;
+
+    border-top: 1px solid var(--line);
+
+    color: var(--ink);
+
+    white-space: nowrap;
+  }
+
+  .preview-table tbody tr:hover td {
+    background: var(--bg);
+  }
+
+  .preview-table strong {
+    font-family: var(--font-mono);
+  }
+
+  /* =========================================================
+       WARNING
+    ========================================================= */
+
+  .warning-box {
+    margin: 16px 20px;
+
+    padding: 14px 17px;
+
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+
+    border-radius: var(--radius-md);
+
+    color: #9a3412;
+
+    font-size: 8.5px;
+    line-height: 1.7;
+  }
+
+  /* =========================================================
+       MODAL FOOTER
+    ========================================================= */
+
+  .preview-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 16px 20px;
+
+    border-top: 1px solid var(--line);
+
+    background: var(--surface);
+  }
+
+  .preview-count {
+    font-size: 8.5px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+
+  .preview-count strong {
+    color: var(--ink);
+  }
+
+  /* =========================================================
+       MOBILE
+    ========================================================= */
+
+  @media (max-width: 700px) {
+    .preview-modal {
+      padding: 12px;
+    }
+
+    .preview-modal-content {
+      width: 100%;
+      max-height: 94vh;
+      border-radius: 14px;
+    }
+
+    .preview-header {
+      padding: 16px;
+    }
+
+    .preview-modal-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    .preview-modal-footer .button-row {
+      justify-content: stretch;
+    }
+
+    .preview-modal-footer button {
+      flex: 1;
+    }
+
+    .preview-count {
+      text-align: center;
+    }
+  }
+</style>
+
+<!-- =========================================================
+     ERROR MESSAGE
+========================================================= -->
+
+{% if error_message %}
+
+<div class="error-box">{{ error_message }}</div>
+
+{% endif %}
+
+<!-- =========================================================
+     SUCCESS MESSAGE
+========================================================= -->
+
+{% if success_message %}
+
+<div class="success-box">{{ success_message }}</div>
+
+{% endif %}
+
+<!-- =========================================================
+     UPLOAD
+========================================================= -->
+
+<div class="erp-card upload-card">
+  <div class="upload-title">Upload Outlet Excel</div>
+
+  <div class="upload-description">
+    Upload an Excel file containing the outlet records for this demonstration.
+    The system previews the records before you confirm the simulated removal. No
+    production records are changed.
+  </div>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <input type="hidden" name="action" value="preview" />
+
+    <div class="file-box">
+      <input type="file" name="excel_file" accept=".xlsx" required />
+    </div>
+
+    <div class="button-row">
+      <button type="submit" class="primary-button">Preview Records</button>
+    </div>
+  </form>
+</div>
+
+<!-- =========================================================
+     PREVIEW MODAL
+========================================================= -->
+
+{% if preview_results %}
+
+<div class="preview-modal" id="previewModal">
+  <div
+    class="preview-modal-content"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="previewTitle"
+  >
+    <!-- HEADER -->
+
+    <div class="preview-header">
+      <div class="preview-header-left">
+        <h3 id="previewTitle">Removal Preview</h3>
+
+        <p>Review the records below before confirming removal.</p>
+      </div>
+
+      <button
+        type="button"
+        class="modal-close"
+        onclick="closePreviewModal()"
+        aria-label="Close preview"
+      >
+        ×
+      </button>
+    </div>
+
+    <!-- BODY -->
+
+    <div class="preview-modal-body">
+      <div class="table-wrapper">
+        <table class="preview-table">
+          <thead>
+            <tr>
+              <th>ROW</th>
+              <th>CODE</th>
+              <th>CUSTOMER CODE</th>
+              <th>STATUS</th>
+              <th>MESSAGE</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for item in preview_results %}
+
+            <tr>
+              <td>{{ item.row }}</td>
+
+              <td>
+                <strong> {{ item.code }} </strong>
+              </td>
+
+              <td>
+                <strong> {{ item.customer_code }} </strong>
+              </td>
+
+              <td>
+                {% if item.status == "FOUND" %}
+
+                <span class="chip chip-success"> FOUND </span>
+
+                {% else %}
+
+                <span class="chip chip-danger"> NOT FOUND </span>
+
+                {% endif %}
+              </td>
+
+              <td>{{ item.message }}</td>
+            </tr>
+
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- WARNING -->
+
+      <div class="warning-box">
+        <strong>Demo Notice:</strong>
+
+        Clicking "Remove Outlets" records a simulated removal result in the
+        local demo database. No SAP records or production data are deleted or
+        modified.
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="preview-modal-footer">
+      <div class="preview-count">
+        Total:
+        <strong> {{ preview_results|length }} </strong>
+        records
+      </div>
+
+      <!-- REMOVE FORM -->
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <input type="hidden" name="action" value="remove" />
+
+        {% for item in preview_results %} {% if item.status == "FOUND" %}
+
+        <input type="hidden" name="code" value="{{ item.code }}" />
+
+        <input
+          type="hidden"
+          name="customer_code"
+          value="{{ item.customer_code }}"
+        />
+
+        {% endif %} {% endfor %}
+
+        <div class="button-row">
+          <button
+            type="button"
+            class="secondary-button"
+            onclick="closePreviewModal()"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="danger-button"
+            onclick="
+              return confirm(
+                'Confirm the simulated outlet removal? No production data will be changed.',
+              );
+            "
+          >
+            Remove Outlets
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+
+<!-- =========================================================
+     REMOVAL RESULT
+========================================================= -->
+
+{% if removal_results %}
+
+<div class="erp-card" style="margin-top: 18px">
+  <div class="preview-header">
+    <div class="preview-header-left">
+      <h3>Removal Results</h3>
+
+      <p>Final result of the removal operation.</p>
+    </div>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="preview-table">
+      <thead>
+        <tr>
+          <th>CODE</th>
+          <th>CUSTOMER CODE</th>
+          <th>STATUS</th>
+          <th>MESSAGE</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for item in removal_results %}
+
+        <tr>
+          <td>
+            <strong> {{ item.code }} </strong>
+          </td>
+
+          <td>
+            <strong> {{ item.customer_code }} </strong>
+          </td>
+
+          <td>
+            {% if item.status == "SUCCESS" %}
+
+            <span class="chip chip-success"> SUCCESS </span>
+
+            {% else %}
+
+            <span class="chip chip-danger"> FAILED </span>
+
+            {% endif %}
+          </td>
+
+          <td>{{ item.message }}</td>
+        </tr>
+
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endif %}
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+  function closePreviewModal() {
+    const modal = document.getElementById("previewModal");
+
+    if (modal) {
+      modal.style.opacity = "0";
+
+      setTimeout(function () {
+        modal.style.display = "none";
+      }, 180);
+    }
+
+    document.body.style.overflow = "";
+  }
+
+  /* =========================================================
+       OPEN MODAL
+    ========================================================= */
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("previewModal");
+
+    if (modal) {
+      document.body.style.overflow = "hidden";
+    }
+  });
+
+  /* =========================================================
+       CLICK OUTSIDE MODAL
+    ========================================================= */
+
+  document.addEventListener("click", function (event) {
+    const modal = document.getElementById("previewModal");
+
+    if (modal && event.target === modal) {
+      closePreviewModal();
+    }
+  });
+
+  /* =========================================================
+       ESC KEY
+    ========================================================= */
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closePreviewModal();
+    }
+  });
+</script>
+
+{% endblock %}

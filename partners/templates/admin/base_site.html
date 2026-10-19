@@ -1,0 +1,306 @@
+{% extends "admin/base.html" %} {% load static %} {% block title %}{{ title }} |
+GPS Operations Demo{% endblock %} {% block extrastyle %} {{ block.super }}
+<style>
+  :root {
+    --ink: #1f2430;
+    --muted: #7a8296;
+    --muted-2: #a2a8b8;
+    --primary: #e8462f;
+    --primary-deep: #c93a26;
+    --primary-soft: #fdece7;
+    --indigo: #223a66;
+    --indigo-soft: #eaeefb;
+    --bg: #f4f5fa;
+    --surface: #fff;
+    --line: #e9eaf1;
+    --success: #16915f;
+    --danger: #d93a3a;
+    --shadow: 0 10px 30px -16px rgba(31, 36, 48, 0.18);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Inter, "Segoe UI", sans-serif;
+  }
+  #header {
+    background: var(--surface);
+    color: var(--ink);
+    height: 72px;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 4px 14px -8px rgba(31, 36, 48, 0.14);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+  }
+  #branding h1 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: 0.1px;
+  }
+  #branding h1 a {
+    color: var(--ink);
+  }
+  #branding h1 a:hover {
+    color: var(--primary);
+  }
+  #user-tools {
+    font-size: 11px;
+    color: var(--muted);
+    padding: 0;
+  }
+  #user-tools a {
+    color: var(--indigo);
+    font-weight: 700;
+    border-bottom: 0;
+  }
+  #user-tools a:hover {
+    color: var(--primary);
+  }
+  #user-tools .welcome {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  #user-tools .logout-form {
+    display: inline;
+  }
+  #user-tools button {
+    background: none;
+    border: 0;
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  #user-tools button:hover {
+    color: var(--primary-deep);
+  }
+  div.breadcrumbs {
+    background: var(--indigo);
+    color: #c9d4e8;
+    padding: 12px 28px;
+    font-size: 10px;
+  }
+  div.breadcrumbs a {
+    color: #fff;
+    font-weight: 600;
+  }
+  #content {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px 28px 40px;
+  }
+  #content h1 {
+    font-size: 22px;
+    color: var(--indigo);
+    font-weight: 800;
+    margin: 0 0 18px;
+  }
+  .module {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .module h2,
+  .module caption {
+    background: var(--indigo);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 13px 17px;
+    letter-spacing: 0.3px;
+  }
+  .module table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .module th {
+    background: #f4f5fa;
+    color: var(--muted);
+    font-size: 9px;
+    padding: 11px 14px;
+    text-align: left;
+  }
+  .module td {
+    border-top: 1px solid var(--line);
+    padding: 12px 14px;
+    font-size: 10px;
+    color: var(--ink);
+  }
+  .module td a {
+    color: var(--indigo);
+    font-weight: 700;
+  }
+  .module td a:hover {
+    color: var(--primary);
+  }
+  .addlink {
+    color: var(--primary) !important;
+    font-weight: 800 !important;
+  }
+  .object-tools a {
+    background: var(--primary) !important;
+    border-radius: 999px !important;
+    padding: 9px 15px !important;
+    font-size: 10px !important;
+  }
+  .object-tools a:hover {
+    background: var(--primary-deep) !important;
+  }
+  .button,
+  .submit-row input,
+  .submit-row a.deletelink {
+    border-radius: 999px !important;
+    border: 0 !important;
+    font-weight: 700 !important;
+  }
+  .button,
+  .submit-row input {
+    background: var(--primary) !important;
+    color: #fff !important;
+  }
+  .button:hover,
+  .submit-row input:hover {
+    background: var(--primary-deep) !important;
+  }
+  .submit-row {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 14px;
+    margin-top: 18px;
+  }
+  input,
+  textarea,
+  select {
+    border: 1px solid #dfe2ea !important;
+    border-radius: 9px !important;
+    padding: 8px 10px !important;
+  }
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-soft) !important;
+    outline: none;
+  }
+  .selector,
+  .form-row {
+    border-color: var(--line);
+  }
+  #changelist-filter {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  #changelist-filter h2 {
+    background: var(--indigo);
+    color: #fff;
+    font-size: 10px;
+    padding: 12px;
+  }
+  #changelist-filter h3 {
+    color: var(--muted);
+    font-size: 9px;
+  }
+  #changelist-filter li.selected a {
+    color: var(--primary);
+    font-weight: 800;
+  }
+  #changelist .actions {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 8px;
+  }
+  #changelist table {
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  #changelist table thead th {
+    background: #f4f5fa;
+    color: var(--muted);
+    font-size: 9px;
+  }
+  #changelist table tbody td {
+    font-size: 9px;
+    border-bottom: 1px solid var(--line);
+  }
+  #changelist table tbody tr:hover td {
+    background: #fafbfe;
+  }
+  .paginator {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px;
+  }
+  .messagelist {
+    padding: 0;
+    margin: 0 0 18px;
+  }
+  .messagelist li {
+    border-radius: 12px !important;
+    margin-bottom: 8px !important;
+  }
+  .messagelist .success {
+    background: #e3f7ee !important;
+    color: #0d6f49 !important;
+  }
+  .messagelist .error {
+    background: #fbe9e9 !important;
+    color: #a92929 !important;
+  }
+  .delete-confirmation {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  @media (max-width: 800px) {
+    #header {
+      padding: 0 16px;
+    }
+    #content {
+      padding: 18px 14px 30px;
+    }
+    #user-tools {
+      font-size: 9px;
+    }
+    .breadcrumbs {
+      padding-left: 14px !important;
+      padding-right: 14px !important;
+    }
+  }
+</style>
+{% endblock %} {% block branding %}
+<div id="branding">
+  <h1>
+    <a href="{% url 'admin:index' %}">
+      GPS OPERATIONS <span style="color: #e8462f">•</span> ADMIN
+    </a>
+  </h1>
+</div>
+{% endblock %} {% block usertools %}
+<div id="user-tools">
+  <span class="welcome">{{ user.get_full_name|default:user.username }}</span>
+  &nbsp;·&nbsp;
+  <a href="{% url 'home' %}">Back to Portal</a>
+  &nbsp;·&nbsp;
+  <a href="{% url 'admin:password_change' %}">Change password</a>
+  &nbsp;·&nbsp;
+  <form class="logout-form" method="post" action="{% url 'admin:logout' %}">
+    {% csrf_token %}
+    <button type="submit">Log out</button>
+  </form>
+</div>
+{% endblock %}

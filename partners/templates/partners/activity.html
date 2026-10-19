@@ -1,0 +1,932 @@
+{% extends "partners/base.html" %}
+
+{% block title %}Activity Log | SAP GPS Reset System{% endblock %}
+
+{% block page_title %}
+Activity Log
+{% endblock %}
+
+{% block page_subtitle %}
+Audit and review GPS reset and outlet removal transactions performed by system users
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+
+    /* =========================================================
+       SUMMARY
+    ========================================================= */
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+
+    .summary {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: 18px 20px;
+    }
+
+
+    .summary-label {
+        color: var(--muted);
+        font-size: 8px;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        letter-spacing: .8px;
+        margin-bottom: 9px;
+    }
+
+
+    .summary-value {
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 700;
+        font-family: var(--font-display);
+    }
+
+
+    .summary-description {
+        color: var(--muted-2);
+        font-size: 8px;
+        margin-top: 4px;
+    }
+
+
+    .summary.total .summary-value {
+        color: var(--indigo);
+    }
+
+
+    .summary.success .summary-value {
+        color: var(--success);
+    }
+
+
+    .summary.failed .summary-value {
+        color: var(--danger);
+    }
+
+
+    .summary.users .summary-value {
+        color: var(--gold);
+    }
+
+
+    /* =========================================================
+       TOOLBAR
+    ========================================================= */
+
+    .activity-toolbar {
+        min-height: 64px;
+        padding: 12px 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        border-bottom: 1px solid var(--line);
+    }
+
+
+    .toolbar-title h3 {
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+        font-family: var(--font-display);
+    }
+
+
+    .toolbar-title p {
+        color: var(--muted);
+        font-size: 8.5px;
+        margin-top: 3px;
+    }
+
+
+    /* =========================================================
+       SEARCH
+    ========================================================= */
+
+    .search-form {
+        display: flex;
+        gap: 8px;
+    }
+
+
+    .search-input {
+        width: 260px;
+        height: 36px;
+
+        border: 1.5px solid var(--line);
+        background: var(--bg);
+
+        border-radius: var(--radius-pill);
+
+        padding: 0 16px;
+
+        outline: none;
+
+        font-size: 9.5px;
+        font-family: var(--font-mono);
+    }
+
+
+    .search-input:focus {
+        border-color: var(--primary);
+        background: #fff;
+    }
+
+
+    .search-button {
+        height: 36px;
+        padding: 0 18px;
+
+        background: var(--primary);
+
+        border: none;
+        border-radius: var(--radius-pill);
+
+        color: #fff;
+
+        font-size: 9.5px;
+        font-weight: 700;
+
+        cursor: pointer;
+    }
+
+
+    .search-button:hover {
+        background: var(--primary-deep);
+    }
+
+
+    /* =========================================================
+       TABLE
+    ========================================================= */
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+
+    .activity-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        font-size: 9.5px;
+    }
+
+
+    .activity-table th {
+        background: var(--bg);
+
+        color: var(--muted);
+
+        font-size: 8px;
+        font-weight: 700;
+
+        font-family: var(--font-mono);
+
+        letter-spacing: .4px;
+
+        padding: 11px 16px;
+
+        text-align: left;
+
+        white-space: nowrap;
+    }
+
+
+    .activity-table td {
+        padding: 11px 16px;
+
+        color: var(--ink);
+
+        border-top: 1px solid var(--line);
+
+        white-space: nowrap;
+    }
+
+
+    .activity-table tbody tr:hover td {
+        background: var(--bg);
+    }
+
+
+    .activity-table td strong {
+        color: var(--ink);
+
+        font-weight: 700;
+
+        font-family: var(--font-mono);
+    }
+
+
+    /* =========================================================
+       USER
+    ========================================================= */
+
+    .activity-user {
+        display: flex;
+        align-items: center;
+
+        gap: 10px;
+    }
+
+
+    .mini-avatar {
+        width: 26px;
+        height: 26px;
+
+        border-radius: 50%;
+
+        background: linear-gradient(
+            135deg,
+            var(--primary),
+            var(--indigo)
+        );
+
+        color: #fff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 8.5px;
+        font-weight: 700;
+
+        font-family: var(--font-mono);
+
+        flex-shrink: 0;
+    }
+
+
+    .activity-user strong {
+        display: block;
+
+        color: var(--ink);
+
+        font-size: 9.5px;
+
+        font-family: var(--font-body);
+    }
+
+
+    .activity-user span {
+        display: block;
+
+        color: var(--muted-2);
+
+        font-size: 7.5px;
+
+        margin-top: 1px;
+    }
+
+
+    /* =========================================================
+       ACTION BADGES
+    ========================================================= */
+
+    .action-gps {
+        background: var(--indigo-soft);
+        color: var(--indigo);
+    }
+
+
+    .action-remove {
+        background: #fff1f2;
+        color: #be123c;
+    }
+
+
+    .action-badge {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 5px 9px;
+
+        border-radius: var(--radius-pill);
+
+        font-size: 7.5px;
+
+        font-weight: 700;
+
+        font-family: var(--font-mono);
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+       EMPTY
+    ========================================================= */
+
+    .empty {
+        padding: 52px 20px;
+
+        text-align: center;
+
+        color: var(--muted);
+    }
+
+
+    .empty strong {
+        display: block;
+
+        color: var(--ink);
+
+        font-size: 12px;
+
+        margin-bottom: 5px;
+
+        font-family: var(--font-display);
+    }
+
+
+    .empty span {
+        font-size: 8.5px;
+    }
+
+
+    /* =========================================================
+       INFO
+    ========================================================= */
+
+    .activity-info {
+        margin-top: 16px;
+
+        padding: 16px 20px;
+
+        background: var(--indigo-soft);
+
+        border-radius: var(--radius-md);
+
+        display: flex;
+
+        gap: 12px;
+    }
+
+
+    .activity-info .mark {
+        width: 26px;
+        height: 26px;
+
+        border-radius: 50%;
+
+        background: var(--indigo);
+
+        color: #fff;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        font-size: 12px;
+
+        flex-shrink: 0;
+    }
+
+
+    .activity-info strong {
+        color: var(--indigo);
+
+        font-size: 9.5px;
+
+        display: block;
+
+        margin-bottom: 4px;
+    }
+
+
+    .activity-info p {
+        color: #4a5a80;
+
+        font-size: 8.5px;
+
+        line-height: 1.7;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media(max-width: 1000px) {
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+    }
+
+
+    @media(max-width: 650px) {
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+
+        .activity-toolbar {
+            align-items: stretch;
+
+            flex-direction: column;
+        }
+
+
+        .search-form {
+            width: 100%;
+        }
+
+
+        .search-input {
+            flex: 1;
+
+            width: auto;
+        }
+
+    }
+
+    .export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    background-color: #198754;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+    background-color: #157347;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+
+.export-icon {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+</style>
+
+
+<!-- =========================================================
+     SUMMARY CARDS
+========================================================= -->
+
+<div class="summary-grid">
+
+
+    <!-- TOTAL -->
+
+    <div class="summary total">
+
+        <div class="summary-label">
+            TOTAL ACTIVITIES
+        </div>
+
+        <div class="summary-value">
+            {{ total_activities|default:"0" }}
+        </div>
+
+        <div class="summary-description">
+            All recorded transactions
+        </div>
+
+    </div>
+
+
+    <!-- SUCCESS -->
+
+    <div class="summary success">
+
+        <div class="summary-label">
+            SUCCESSFUL
+        </div>
+
+        <div class="summary-value">
+            {{ successful_activities|default:"0" }}
+        </div>
+
+        <div class="summary-description">
+            Completed successfully
+        </div>
+
+    </div>
+
+
+    <!-- FAILED -->
+
+    <div class="summary failed">
+
+        <div class="summary-label">
+            FAILED
+        </div>
+
+        <div class="summary-value">
+            {{ failed_activities|default:"0" }}
+        </div>
+
+        <div class="summary-description">
+            Failed transactions
+        </div>
+
+    </div>
+
+
+    <!-- USERS -->
+
+    <div class="summary users">
+
+        <div class="summary-label">
+            ACTIVE USERS
+        </div>
+
+        <div class="summary-value">
+            {{ active_users|default:"0" }}
+        </div>
+
+        <div class="summary-description">
+            Users performing operations
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     ACTIVITY TABLE
+========================================================= -->
+
+<div class="erp-card">
+
+
+    <!-- TOOLBAR -->
+
+    <div class="activity-toolbar">
+
+        <div class="toolbar-title">
+
+            <h3>
+                Transaction History
+            </h3>
+
+            <p>
+                GPS reset and outlet removal operations
+            </p>
+
+        </div>
+
+
+        <!-- SEARCH -->
+
+        <form
+            method="GET"
+            class="search-form"
+        >
+
+            <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Search CardCode, Code or Customer Code..."
+                value="{{ search|default:'' }}"
+            >
+
+            <button
+                type="submit"
+                class="search-button"
+            >
+                Search
+            </button>
+
+        </form>
+                <a href="{% url 'export_activity_logs' %}" class="export-btn">
+                    <span class="export-icon">↓</span>
+                    <span>Export Excel</span>
+                </a>
+        </div>
+
+    <!-- =====================================================
+         ACTIVITIES EXIST
+    ====================================================== -->
+
+    {% if activities %}
+
+    <div class="table-wrapper">
+
+        <table class="activity-table">
+
+
+            <!-- TABLE HEADER -->
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        DATE / TIME
+                    </th>
+
+                    <th>
+                        USER
+                    </th>
+
+                    <th>
+                        ACTION
+                    </th>
+
+                    <th>
+                        CODE
+                    </th>
+
+                    <th>
+                        REFERENCE
+                    </th>
+
+                    <th>
+                        TYPE
+                    </th>
+
+                    <th>
+                        STATUS
+                    </th>
+
+                    <th>
+                        MESSAGE
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <!-- TABLE BODY -->
+
+            <tbody>
+
+                {% for activity in activities %}
+
+                <tr>
+
+
+                    <!-- DATE / TIME -->
+
+                    <td>
+
+                        {{ activity.created_at|date:"d M Y, H:i" }}
+
+                    </td>
+
+
+                    <!-- USER -->
+
+                    <td>
+
+                        <div class="activity-user">
+
+
+                            <!-- AVATAR -->
+
+                            <div class="mini-avatar">
+
+                                {% if activity.user %}
+
+                                    {{ activity.user.username|first|upper }}
+
+                                {% else %}
+
+                                    ?
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- USER INFO -->
+
+                            <div>
+
+                                {% if activity.user %}
+
+                                    <strong>
+
+                                        {% if activity.user.get_full_name %}
+
+                                            {{ activity.user.get_full_name }}
+
+                                        {% else %}
+
+                                            {{ activity.user.username }}
+
+                                        {% endif %}
+
+                                    </strong>
+
+
+                                    <span>
+
+                                        {{ activity.user.username }}
+
+                                    </span>
+
+                                {% else %}
+
+                                    <strong>
+                                        Unknown User
+                                    </strong>
+
+                                    <span>
+                                        User account unavailable
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td>
+
+                        {% if activity.action == "GPS RESET" %}
+
+                            <span
+                                class="action-badge action-gps"
+                            >
+                                GPS RESET
+                            </span>
+
+                        {% else %}
+
+                            <span
+                                class="action-badge action-remove"
+                            >
+                                REMOVE OUTLET
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            {{ activity.code }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- REFERENCE -->
+
+                    <td>
+
+                        <strong>
+                            {{ activity.reference }}
+                        </strong>
+
+                    </td>
+
+
+                    <!-- TYPE -->
+
+                    <td>
+
+                        {% if activity.type == "BULK" %}
+
+                            <span class="chip chip-gold">
+                                BULK
+                            </span>
+
+                        {% else %}
+
+                            <span class="chip chip-info">
+                                SINGLE
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        {% if activity.status == "SUCCESS" %}
+
+                            <span class="chip chip-success">
+                                SUCCESS
+                            </span>
+
+                        {% else %}
+
+                            <span class="chip chip-danger">
+                                FAILED
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <!-- MESSAGE -->
+
+                    <td>
+
+                        {{ activity.message }}
+
+                    </td>
+
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- =====================================================
+         NO ACTIVITIES
+    ====================================================== -->
+
+    {% else %}
+
+    <div class="empty">
+
+        <strong>
+            No transaction records
+        </strong>
+
+        <span>
+            GPS reset and outlet removal operations
+            will appear here after users perform them.
+        </span>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<!-- =========================================================
+     INFORMATION
+========================================================= -->
+
+<div class="activity-info">
+
+
+    <div class="mark">
+        i
+    </div>
+
+
+    <div>
+
+        <strong>
+            ACTIVITY MONITORING
+        </strong>
+
+        <p>
+            This audit view records the executing user,
+            operation type, CardCode or outlet Code,
+            Ship to Code or Customer Code,
+            transaction type, result and timestamp
+            of GPS reset and outlet removal operations.
+        </p>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

@@ -1,0 +1,530 @@
+{% extends "partners/base.html" %} {% block title %}Dashboard | SAP GPS Reset
+System{% endblock %} {% block page_title %}Welcome, ADMIN
+{% endblock %} {% block page_subtitle %}Internal workspace for outlet GPS
+reset operations{% endblock %} {% block content %}
+
+<style>
+  /* =====================================================
+       STAT CARDS
+    ====================================================== */
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    color: #fff;
+  }
+
+  .stat-icon.a {
+    background: linear-gradient(135deg, var(--success), #0f7a4e);
+  }
+
+  .stat-icon.b {
+    background: linear-gradient(135deg, var(--primary), var(--primary-deep));
+  }
+
+  .stat-icon.c {
+    background: linear-gradient(135deg, var(--gold), #a8730f);
+  }
+
+  .stat-label {
+    color: var(--muted);
+    font-size: 8.5px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+  }
+
+  .stat-value {
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-display);
+  }
+
+  .stat-detail {
+    color: var(--muted-2);
+    font-size: 8.5px;
+    margin-top: 3px;
+  }
+
+  /* =====================================================
+       MAIN AREA
+    ====================================================== */
+
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+    gap: 16px;
+  }
+
+  /* =====================================================
+       OPERATIONS
+    ====================================================== */
+
+  .operation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .operation:last-child {
+    border-bottom: none;
+  }
+
+  .operation-main {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .operation-code {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    background: var(--indigo-soft);
+    color: var(--indigo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* Remove Outlet icon */
+  .operation-code.remove {
+    background: #fff1f1;
+    color: var(--danger);
+  }
+
+  .operation-info h3 {
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-display);
+  }
+
+  .operation-info p {
+    color: var(--muted);
+    font-size: 9px;
+    margin-top: 4px;
+    line-height: 1.6;
+    max-width: 360px;
+  }
+
+  .operation-link {
+    min-width: 76px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary);
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    border-radius: var(--radius-pill);
+    padding: 0 16px;
+    text-decoration: none;
+  }
+
+  .operation-link:hover {
+    background: var(--primary-deep);
+  }
+
+  /* Remove button */
+  .operation-link.remove {
+    background: var(--danger);
+  }
+
+  .operation-link.remove:hover {
+    background: #b91c1c;
+  }
+
+  /* =====================================================
+       SYSTEM DETAILS
+    ====================================================== */
+
+  .detail-row {
+    padding: 13px 22px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .detail-label {
+    color: var(--muted);
+    font-size: 8.5px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  .detail-value {
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  .detail-value.online {
+    color: var(--success);
+  }
+
+  /* =====================================================
+       NOTICE
+    ====================================================== */
+
+  .dashboard-notice {
+    margin-top: 16px;
+    padding: 16px 20px;
+    background: var(--primary-soft);
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 12px;
+  }
+
+  .dashboard-notice .mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .dashboard-notice strong {
+    color: var(--primary-deep);
+    font-size: 9.5px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .dashboard-notice p {
+    color: #8a4232;
+    font-size: 9px;
+    line-height: 1.6;
+  }
+
+  /* =====================================================
+       REMOVE OUTLET WARNING
+    ====================================================== */
+
+  .remove-warning {
+    margin-top: 16px;
+    padding: 15px 20px;
+    background: #fff5f5;
+    border: 1px solid #ffd5d5;
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .remove-warning .warning-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .remove-warning strong {
+    color: var(--danger);
+    font-size: 9.5px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .remove-warning p {
+    color: #7f1d1d;
+    font-size: 8.5px;
+    line-height: 1.6;
+  }
+
+  /* =====================================================
+       RESPONSIVE
+    ====================================================== */
+
+  @media (max-width: 850px) {
+    .stat-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .operation {
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .operation-main {
+      min-width: 0;
+    }
+
+    .operation-info p {
+      max-width: none;
+    }
+
+    .operation-link {
+      flex-shrink: 0;
+    }
+  }
+</style>
+
+<!-- =====================================================
+     STAT CARDS
+====================================================== -->
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon a">●</div>
+
+    <div>
+      <div class="stat-label">SYSTEM STATUS</div>
+
+      <div class="stat-value">Operational</div>
+
+      <div class="stat-detail">Application service available</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon b">◎</div>
+
+    <div>
+      <div class="stat-label">SINGLE RESET</div>
+
+      <div class="stat-value">Available</div>
+
+      <div class="stat-detail">Individual outlet processing</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon c">⇧</div>
+
+    <div>
+      <div class="stat-label">BULK RESET</div>
+
+      <div class="stat-value">Excel Upload</div>
+
+      <div class="stat-detail">Multiple outlet processing</div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     DASHBOARD
+====================================================== -->
+
+<div class="dashboard-layout">
+  <!-- =================================================
+         AVAILABLE OPERATIONS
+    ================================================== -->
+
+  <div class="erp-card">
+    <div class="erp-card-header">
+      <div>
+        <h3>Available Operations</h3>
+
+        <p>GPS and outlet management functions</p>
+      </div>
+    </div>
+
+    <div class="operation-list">
+      <!-- =============================================
+                 GPS RESET
+            ============================================== -->
+
+      <div class="operation">
+        <div class="operation-main">
+          <div class="operation-code">◎</div>
+
+          <div class="operation-info">
+            <h3>GPS Reset</h3>
+
+            <p>
+              Clear GPS coordinates for a single outlet or process multiple
+              outlets through an Excel file.
+            </p>
+          </div>
+        </div>
+
+        <a href="{% url 'gps_cancel' %}" class="operation-link"> Open </a>
+      </div>
+
+      <!-- =============================================
+                 REMOVE OUTLET
+            ============================================== -->
+
+      <div class="operation">
+        <div class="operation-main">
+          <div class="operation-code remove">×</div>
+
+          <div class="operation-info">
+            <h3>Remove Outlet</h3>
+
+            <p>
+              Preview outlet records from an Excel file before permanently
+              removing them from the route details.
+            </p>
+          </div>
+        </div>
+
+        <a href="{% url 'remove_outlet' %}" class="operation-link remove">
+          Open
+        </a>
+      </div>
+
+      <!-- =============================================
+                 ACTIVITY LOG
+            ============================================== -->
+
+      {% if request.user.is_staff %}
+
+      <div class="operation">
+        <div class="operation-main">
+          <div class="operation-code">≡</div>
+
+          <div class="operation-info">
+            <h3>Activity Log</h3>
+
+            <p>
+              Review recorded GPS reset and outlet removal transactions, users,
+              results and timestamps.
+            </p>
+          </div>
+        </div>
+
+        <a href="{% url 'activity' %}" class="operation-link"> View </a>
+      </div>
+
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- =================================================
+         SYSTEM INFORMATION
+    ================================================== -->
+
+  <div class="erp-card">
+    <div class="erp-card-header">
+      <div>
+        <h3>System Information</h3>
+
+        <p>Current environment</p>
+      </div>
+    </div>
+
+    <div class="system-details">
+      <div class="detail-row">
+        <div class="detail-label">Application</div>
+
+        <div class="detail-value">SAP Operations App</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Environment</div>
+
+        <div class="detail-value">Private</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Database</div>
+
+        <div class="detail-value">Private</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Access</div>
+
+        <div class="detail-value">Authorized Users</div>
+      </div>
+
+      <div class="detail-row">
+        <div class="detail-label">Status</div>
+
+        <div class="detail-value online">● Online</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+      PORTFOLIO DEMO NOTICE
+====================================================== -->
+
+<div class="dashboard-notice">
+  <div class="mark">!</div>
+
+  <div>
+    <strong> PORTFOLIO DEMO </strong>
+
+    <p>
+      This is a demonstration of a GPS reset and outlet management workflow
+      built with Django. All operations are simulated using local demo data. No
+      company systems or production databases are accessed or modified.
+    </p>
+  </div>
+</div>
+
+<div class="remove-warning">
+  <div class="warning-mark">!</div>
+
+  <div>
+    <strong> DEMO OUTLET REMOVAL </strong>
+
+    <p>
+      This demo simulates the outlet removal workflow. Review the uploaded
+      records in the preview screen before confirming. No production records are
+      deleted or modified.
+    </p>
+  </div>
+</div>
+
+{% endblock %}

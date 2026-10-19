@@ -1,0 +1,752 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}GPS Operations Demo{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --ink: #1f2430;
+        --muted: #7a8296;
+        --muted-2: #a2a8b8;
+
+        --primary: #e8462f;
+        --primary-soft: #fdece7;
+        --primary-deep: #c93a26;
+
+        --indigo: #223a66;
+        --indigo-soft: #eaeefb;
+
+        --bg: #f4f5fa;
+        --surface: #ffffff;
+        --line: #e9eaf1;
+
+        --success: #16915f;
+        --success-soft: #e3f7ee;
+        --danger: #d93a3a;
+        --danger-soft: #fbe9e9;
+        --gold: #c98a1c;
+        --gold-soft: #fbf1dd;
+
+        --radius-lg: 20px;
+        --radius-md: 14px;
+        --radius-sm: 10px;
+        --radius-pill: 999px;
+
+        --shadow: 0 10px 30px -16px rgba(31, 36, 48, 0.18);
+        --shadow-sm: 0 4px 14px -8px rgba(31, 36, 48, 0.14);
+
+        --font-display: "Zen Maru Gothic", "Inter", sans-serif;
+        --font-body: "Inter", "Zen Maru Gothic", sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--ink);
+        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font-family: inherit;
+      }
+
+      .enso {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        opacity: 0.14;
+        pointer-events: none;
+      }
+
+      .topnav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--surface);
+        border-bottom: 1px solid var(--line);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .topnav-inner {
+        max-width: 1440px;
+        margin: 0 auto;
+        height: 68px;
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        flex-shrink: 0;
+      }
+
+      .brand-logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: var(--indigo-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      .brand-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: 5px;
+      }
+
+      .brand-info h2 {
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+        white-space: nowrap;
+      }
+
+      .brand-info p {
+        color: var(--muted-2);
+        font-size: 8px;
+        font-family: var(--font-mono);
+        letter-spacing: 1px;
+        margin-top: 2px;
+        white-space: nowrap;
+      }
+
+      .nav-pills {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--bg);
+        padding: 4px;
+        border-radius: var(--radius-pill);
+        overflow-x: auto;
+      }
+
+      .nav-item {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        border-radius: var(--radius-pill);
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition:
+          background 0.15s ease,
+          color 0.15s ease;
+      }
+
+      .nav-item:hover {
+        color: var(--ink);
+      }
+
+      .nav-item.active {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .nav-icon {
+        font-size: 13px;
+      }
+
+      .topnav-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+      }
+
+      .system-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 9px;
+        font-family: var(--font-mono);
+      }
+
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--success);
+      }
+
+      .user-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-left: 16px;
+        border-left: 1px solid var(--line);
+      }
+
+      .user-info {
+        text-align: right;
+      }
+
+      .user-info strong {
+        display: block;
+        color: var(--ink);
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .user-info span {
+        display: block;
+        color: var(--muted-2);
+        font-size: 8px;
+        margin-top: 2px;
+      }
+
+      .profile-menu {
+        position: relative;
+      }
+
+      .profile-trigger {
+        border: 0;
+        background: transparent;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+
+      .profile-trigger .user-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--indigo));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        box-shadow: 0 3px 10px rgba(34, 58, 102, 0.18);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .profile-trigger:hover .user-avatar {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(34, 58, 102, 0.22);
+      }
+
+      .profile-arrow {
+        color: var(--muted-2);
+        font-size: 11px;
+        transition: transform 0.18s ease;
+      }
+
+      .profile-menu.open .profile-arrow {
+        transform: rotate(180deg);
+      }
+
+      .profile-dropdown {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        width: 220px;
+        padding: 8px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: 0 18px 45px rgba(31, 36, 48, 0.16);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-6px);
+        transition:
+          opacity 0.16s ease,
+          transform 0.16s ease,
+          visibility 0.16s ease;
+        z-index: 300;
+      }
+
+      .profile-menu.open .profile-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      .profile-dropdown::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        right: 16px;
+        width: 12px;
+        height: 12px;
+        background: var(--surface);
+        border-left: 1px solid var(--line);
+        border-top: 1px solid var(--line);
+        transform: rotate(45deg);
+      }
+
+      .profile-dropdown-head {
+        padding: 10px 11px;
+        margin-bottom: 5px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .profile-dropdown-head strong {
+        display: block;
+        color: var(--ink);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .profile-dropdown-head span {
+        display: block;
+        color: var(--muted-2);
+        font-size: 7.5px;
+        margin-top: 3px;
+        font-family: var(--font-mono);
+      }
+
+      .profile-dropdown a,
+      .profile-dropdown .dropdown-logout {
+        width: 100%;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 8px 10px;
+        border: 0;
+        border-radius: 11px;
+        background: transparent;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .profile-dropdown a:hover {
+        background: var(--indigo-soft);
+      }
+      .profile-dropdown .dropdown-logout:hover {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+
+      .dropdown-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        color: var(--indigo);
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+
+      .dropdown-logout .dropdown-icon {
+        color: var(--danger);
+      }
+
+      .profile-dropdown a strong,
+      .profile-dropdown button strong {
+        display: block;
+        font-size: 9px;
+        font-weight: 700;
+      }
+
+      .profile-dropdown a small {
+        display: block;
+        color: var(--muted-2);
+        font-size: 7px;
+        margin-top: 2px;
+      }
+
+      .logout {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+      }
+
+      .logout:hover {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border-color: transparent;
+      }
+
+      .page-hero {
+        position: relative;
+        overflow: hidden;
+        max-width: 1440px;
+        margin: 24px auto 0;
+        padding: 0 28px;
+      }
+
+      .page-hero-inner {
+        position: relative;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(120deg, var(--indigo) 0%, #2e4d84 100%);
+        padding: 26px 32px;
+        color: #fff;
+        overflow: hidden;
+      }
+
+      .page-hero-inner .enso {
+        color: #fff;
+        width: 180px;
+        height: 180px;
+        right: -40px;
+        top: -60px;
+      }
+      .page-hero-inner .enso.two {
+        width: 90px;
+        height: 90px;
+        right: 70px;
+        bottom: -40px;
+        top: auto;
+        opacity: 0.09;
+      }
+
+      .page-hero h1 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+      }
+
+      .page-hero p {
+        color: #c9d4e8;
+        font-size: 10.5px;
+        margin-top: 6px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .content {
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 22px 28px 32px;
+      }
+
+      .erp-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .erp-card-header {
+        min-height: 58px;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .erp-card-header h3 {
+        color: var(--ink);
+        font-size: 12.5px;
+        font-weight: 700;
+        font-family: var(--font-display);
+      }
+
+      .erp-card-header p {
+        color: var(--muted);
+        font-size: 9px;
+        margin-top: 3px;
+      }
+
+      .erp-card-body {
+        padding: 22px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 11px;
+        border-radius: var(--radius-pill);
+        font-size: 8.5px;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        letter-spacing: 0.3px;
+      }
+
+      .chip::before {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .chip-success {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+      .chip-danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+      .chip-info {
+        background: var(--indigo-soft);
+        color: var(--indigo);
+      }
+      .chip-gold {
+        background: var(--gold-soft);
+        color: var(--gold);
+      }
+
+      .footer {
+        margin-top: 26px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+        color: var(--muted-2);
+        font-size: 9px;
+        font-family: var(--font-mono);
+      }
+
+      @media (max-width: 900px) {
+        .topnav-inner {
+          padding: 0 16px;
+          gap: 14px;
+        }
+        .brand-info {
+          display: none;
+        }
+        .system-status {
+          display: none;
+        }
+        .user-info {
+          display: none;
+        }
+        .page-hero {
+          padding: 0 16px;
+        }
+        .content {
+          padding: 18px 16px 26px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .page-hero-inner {
+          padding: 20px 20px;
+        }
+        .page-hero h1 {
+          font-size: 18px;
+        }
+      }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+  </head>
+
+  <body>
+    <nav class="topnav">
+      <div class="topnav-inner">
+        <div class="brand">
+          <div class="brand-logo">
+            <span class="brand-initial">G</span>
+          </div>
+          <div class="brand-info">
+            <h2>GPS Operations Demo</h2>
+            <span>Outlet Management System</span>
+          </div>
+        </div>
+
+        <div class="nav-pills">
+          <a
+            href="{% url 'home' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+          >
+            <span class="nav-icon">▣</span> Dashboard
+          </a>
+
+          <a
+            href="{% url 'gps_cancel' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'gps_cancel' %}active{% endif %}"
+          >
+            <span class="nav-icon">◎</span> GPS Reset
+          </a>
+
+          <a
+            href="{% url 'remove_outlet' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'remove_outlet' %}active{% endif %}"
+          >
+            <span class="nav-icon">◎</span> Remove Outlet
+          </a>
+
+          {% if request.user.is_staff %}
+          <a
+            href="{% url 'activity' %}"
+            class="nav-item {% if request.resolver_match.url_name == 'activity' %}active{% endif %}"
+          >
+            <span class="nav-icon">≡</span> Activity Log
+          </a>
+          {% endif %}
+        </div>
+
+        <div class="topnav-right">
+          <div class="system-status">
+            <span class="status-dot"></span> Online
+          </div>
+
+          <div class="user-area">
+            <div class="user-info">
+              <strong>{{ request.user.username }}</strong>
+              <span
+                >{% if request.user.is_staff %}Manager / IT{% else %}Department
+                User{% endif %}</span
+              >
+            </div>
+
+            <div class="profile-menu" id="profileMenu">
+              <button
+                type="button"
+                class="profile-trigger"
+                id="profileTrigger"
+                aria-expanded="false"
+                aria-haspopup="true"
+              >
+                <div class="user-avatar">
+                  {{ request.user.username|first|upper }}
+                </div>
+                <span class="profile-arrow">⌄</span>
+              </button>
+
+              <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-head">
+                  <strong
+                    >{{ request.user.get_full_name|default:request.user.username
+                    }}</strong
+                  >
+                  <span
+                    >{% if request.user.is_superuser %}SUPER ADMIN{% elif
+                    request.user.is_staff %}STAFF / ADMIN{% else %}DEPARTMENT
+                    USER{% endif %}</span
+                  >
+                </div>
+
+                {% if request.user.is_staff %}
+                <a href="{% url 'admin:index' %}">
+                  <span class="dropdown-icon">⚙</span>
+                  <span>
+                    <strong>Admin Panel</strong>
+                    <small>System administration</small>
+                  </span>
+                </a>
+                {% endif %}
+
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="dropdown-logout">
+                    <span class="dropdown-icon">⇥</span>
+                    <span>
+                      <strong>Logout</strong>
+                      <small>Sign out of your account</small>
+                    </span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <span class="enso"></span>
+        <span class="enso two"></span>
+        <h1>{% block page_title %}GPS Operations Demo{% endblock %}</h1>
+        <p>
+          {% block page_subtitle %}GPS Reset and Outlet Management{% endblock %}
+        </p>
+      </div>
+    </div>
+
+    <section class="content">
+      {% block content %}{% endblock %}
+
+      <div class="footer">
+        GPS Operations Demo &nbsp;·&nbsp; Built with Django &nbsp;·&nbsp;
+        Portfolio Project
+      </div>
+    </section>
+
+    <script>
+      (function () {
+        const menu = document.getElementById("profileMenu");
+        const trigger = document.getElementById("profileTrigger");
+        if (!menu || !trigger) return;
+
+        trigger.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const open = menu.classList.toggle("open");
+          trigger.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+
+        document.addEventListener("click", function (e) {
+          if (!menu.contains(e.target)) {
+            menu.classList.remove("open");
+            trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            menu.classList.remove("open");
+            trigger.setAttribute("aria-expanded", "false");
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
